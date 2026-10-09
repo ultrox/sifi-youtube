@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SIFI YouTube Focus · Settings</title>
+  <link rel="stylesheet" href="options.css">
+  <script src="settings-model.js" defer></script>
+  <script src="options.js" defer></script>
+</head>
+<body>
+  <main>
+    <header><p class="identity">SIFI <span>/ YouTube Focus</span></p><h1>Settings</h1><p class="intro">Playback, navigation and feed limits.</p></header>
+    <form>
+      <fieldset>
+        <legend>Shorts</legend>
+        <label class="setting"><span><strong>Lock video swiping</strong><small>Watch one Short. Exit to choose another.<br>The sound control stays available.</small></span><input type="checkbox" name="shortsLock" role="switch" disabled></label>
+      </fieldset>
+      <fieldset>
+        <legend>Opening pages</legend>
+        <label class="setting"><span><strong>Start in Subscriptions</strong><small>On a fresh Home load. You can still tap Home to explore.</small></span><input type="checkbox" name="subscriptionsHome" role="switch" disabled></label>
+        <label class="setting"><span><strong>Open channels on Videos</strong><small>Other channel tabs stay available.</small></span><input type="checkbox" name="channelVideos" role="switch" disabled></label>
+      </fieldset>
+      <fieldset class="pagination">
+        <legend>Pagination</legend>
+        <p class="section-note">Choose a page size for each feed, then set a shared stopping point.</p>
+        <label class="setting compact"><span><strong>Home</strong></span><input type="checkbox" name="homePagination" role="switch" disabled></label>
+        <div class="page-size"><label for="home-size">Home per page</label><div class="quantity"><input id="home-size" type="number" name="homePageSize" min="1" max="30" step="1" inputmode="numeric" disabled><span>items</span></div></div>
+        <label class="setting compact"><span><strong>Subscriptions</strong></span><input type="checkbox" name="subscriptionsPagination" role="switch" disabled></label>
+        <div class="page-size"><label for="subscriptions-size">Subscriptions per page</label><div class="quantity"><input id="subscriptions-size" type="number" name="subscriptionsPageSize" min="1" max="30" step="1" inputmode="numeric" disabled><span>items</span></div></div>
+        <label class="setting"><span><strong>Video recommendations</strong><small>Videos below the player, not comments.</small></span><input type="checkbox" name="recommendationsPagination" role="switch" disabled></label>
+        <div class="page-size"><label for="recommendations-size">Video recommendations per page</label><div class="quantity"><input id="recommendations-size" type="number" name="recommendationsPageSize" min="1" max="30" step="1" inputmode="numeric" disabled><span>videos</span></div></div>
+        <div class="limit-row"><label for="page-limit"><strong>Stop after</strong><small id="limit-help">For all paginated feeds · 1–30 pages</small></label><div class="quantity"><input id="page-limit" type="number" name="pageLimit" min="1" max="30" step="1" inputmode="numeric" aria-describedby="limit-help" disabled><span>pages</span></div></div>
+        <div class="limit-row"><label for="page-delay"><strong>Page loading delay</strong><small id="delay-help">Minimum 500 ms · maximum 10,000 ms.<br>Applies even to pages already loaded.</small></label><div class="quantity"><input id="page-delay" type="number" name="pageDelayMs" min="500" max="10000" step="1" inputmode="numeric" aria-describedby="delay-help" disabled><span>ms</span></div></div>
+      </fieldset>
+    </form>
+    <footer><p id="status" role="status">Loading settings…</p><p class="note">Saved in this browser. Feed and Shorts settings apply immediately; opening-page settings apply on your next visit.</p></footer>
+  </main>
+</body>
+</html>

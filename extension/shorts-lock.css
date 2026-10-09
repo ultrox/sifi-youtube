@@ -1,0 +1,33 @@
+/* Native mobile and desktop carousel surfaces. Comments live outside these. */
+html[data-sifi-shorts-lock="true"] body.page-shorts #carousel-scrollable-wrapper,
+html[data-sifi-shorts-lock="true"] body.page-shorts #shorts-moveable-container,
+html[data-sifi-shorts-lock="true"] ytd-shorts:not([hidden]) #shorts-container {
+  touch-action: pan-x pinch-zoom !important;
+  overscroll-behavior-y: none !important;
+}
+
+/* Do not let a comment panel's scroll reach the underlying carousel. */
+html[data-sifi-shorts-lock="true"] ytm-engagement-panel.is-shorts-style .engagement-panel-content-wrapper,
+html[data-sifi-shorts-lock="true"] ytd-shorts ytd-engagement-panel-section-list-renderer #content {
+  overscroll-behavior-y: contain !important;
+}
+
+#sifi-youtube-sound {
+  position: fixed !important;
+  top: calc(env(safe-area-inset-top, 0px) + 10px) !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 2147483000 !important;
+  min-width: 104px;
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 1px solid #ffffff60;
+  border-radius: 24px;
+  background: #181818ed;
+  color: #fff;
+  font: 600 14px/1.2 system-ui, sans-serif;
+  cursor: pointer;
+  pointer-events: auto !important;
+}
+#sifi-youtube-sound[data-muted="true"] { border-color: #ffcf7e; color: #ffe0ac; }
+#sifi-youtube-sound:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }

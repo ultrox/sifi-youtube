@@ -1,0 +1,52 @@
+{
+  "manifest_version": 3,
+  "name": "SIFI YouTube Focus",
+  "version": "0.3.5",
+  "description": "Lock Shorts swiping, start at Subscriptions, and open channels on Videos. Each feature is optional.",
+  "permissions": [
+    "storage"
+  ],
+  "action": {
+    "default_title": "YouTube Focus settings",
+    "default_popup": "options.html"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.youtube.com/*",
+        "https://m.youtube.com/*",
+        "https://youtube.com/*"
+      ],
+      "js": [
+        "settings-model.js",
+        "pagination-core.js",
+        "shorts-lock.js",
+        "shorts-audio.js",
+        "pagination-view.js",
+        "pagination.js",
+        "navigation.js"
+      ],
+      "css": [
+        "shorts-lock.css",
+        "pagination.css"
+      ],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "https://www.youtube.com/*",
+        "https://m.youtube.com/*",
+        "https://youtube.com/*"
+      ],
+      "js": [
+        "settings-bridge.js"
+      ],
+      "run_at": "document_start"
+    }
+  ]
+}
