@@ -7,6 +7,12 @@
   function limit(value) {
     return Number.isInteger(value) ? Math.min(MAX_PAGES, Math.max(1, value)) : 6;
   }
+  function feedEntry(url) {
+    if (!['m.youtube.com', 'www.youtube.com', 'youtube.com'].includes(url.hostname)) return null;
+    if (url.pathname === '/') return 'home';
+    if (url.pathname === '/feed/subscriptions') return 'subscriptions';
+    return null;
+  }
   function scope(url, settings) {
     if (url.hostname !== 'm.youtube.com') return null;
     if (url.pathname === '/' && settings.homePagination) return { key: 'home', kind: 'home', label: 'Home' };
@@ -47,5 +53,5 @@
     }
     return result;
   }
-  return { PAGE_SIZE, MAX_PAGES, limit, delay, pageSize, scope, view, numbers };
+  return { PAGE_SIZE, MAX_PAGES, limit, delay, pageSize, feedEntry, scope, view, numbers };
 });

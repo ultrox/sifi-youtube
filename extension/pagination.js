@@ -255,12 +255,27 @@
     }
   }
 
-  // Capture position before YouTube clears its list and resets scroll for a link.
+  // Explicit feed entries start fresh; history navigation still restores position.
   window.addEventListener('click', event => {
-    const link = event.composedPath().find(node => node instanceof Element && node.matches('a[href]'));
+    const path = event.composedPath();
+    const node = path.find(node => node instanceof Element);
+    const link = path.find(node => node instanceof Element && node.matches('a[href]'));
+    let destination = null;
+    if (node?.closest('.pivot-w2w')) destination = 'home';
+    else if (node?.closest('.pivot-subs')) destination = 'subscriptions';
+    else if (link) destination = core.feedEntry(new URL(link.href, location.href));
+    if (destination) {
+      remembered.delete(destination);
+      if (active?.scope.key === destination) {
+        active.departure = null;
+        active.restoreScroll = 0;
+        active.cancelLoad();
+        active.go(1, false);
+      }
+    }
     if (!active || !link) return;
-    const destination = core.scope(new URL(link.href, location.href), settings);
-    if (destination?.key !== active.scope.key) active.departure = { page: active.page, scroll: window.scrollY };
+    const scope = core.scope(new URL(link.href, location.href), settings);
+    if (scope?.key !== active.scope.key) active.departure = { page: active.page, scroll: window.scrollY };
   }, true);
 
   window.addEventListener('sifi-youtube-settings' , event => {

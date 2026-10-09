@@ -83,3 +83,11 @@ test('page delay defaults to 900ms and cannot be configured below 500ms', () => 
   assert.equal(pages.delay(20000), 10000);
   for (const value of [NaN, Infinity, '0', 1.5]) assert.equal(pages.delay(value), 900);
 });
+
+test('only explicit YouTube feed destinations request a fresh feed entry', () => {
+  assert.equal(pages.feedEntry(new URL('https://m.youtube.com/')), 'home');
+  assert.equal(pages.feedEntry(new URL('https://m.youtube.com/feed/subscriptions')), 'subscriptions');
+  for (const url of ['https://example.com/', 'https://m.youtube.com/watch?v=abc', 'https://m.youtube.com/shorts/abc']) {
+    assert.equal(pages.feedEntry(new URL(url)), null);
+  }
+});

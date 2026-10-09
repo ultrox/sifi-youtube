@@ -99,3 +99,9 @@ change its markup and gesture handling; real-device checks remain necessary.
 
 The extension requests only the storage permission. Settings stay in
 `chrome.storage.local`; no analytics or external service is added.
+
+Version 0.3.6 resets pagination to page one on explicit Home or Subscriptions
+entries, including reselecting the active feed tab. Browser Back from a video
+still restores the previous page and scroll position. Pixel checks verified both
+feed-switch directions, same-tab reset, and Home page-two restoration at 500px.
+All 30 automated tests passed.

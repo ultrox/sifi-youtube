@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "SIFI YouTube Focus",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "description": "Lock Shorts swiping, start at Subscriptions, and open channels on Videos. Each feature is optional.",
   "permissions": [
     "storage"
