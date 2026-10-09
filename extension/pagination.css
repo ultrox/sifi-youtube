@@ -21,7 +21,7 @@ html[data-sifi-youtube-paged][data-sifi-youtube-page-kind] ytm-continuation-item
   font-family: Roboto, Arial, sans-serif;
   color: inherit;
 }
-.sifi-page-heading { padding: 12px 16px 8px; font-size: 12px; font-weight: 400; opacity: .7; outline: none; }
+.sifi-page-heading { padding: 12px 16px 8px; font-size: 12px; font-weight: 400; outline: none; }
 .sifi-page-footer {
   --page-ink: light-dark(#0f0f0f, #f1f1f1);
   --page-secondary: light-dark(#606060, #aaa);
@@ -63,3 +63,28 @@ html[data-sifi-youtube-paged][data-sifi-youtube-page-kind] ytm-continuation-item
   .sifi-page-footer { margin-left: 8px; margin-right: 8px; }
   .sifi-page-numbers { gap: 4px; }
 }
+
+.sifi-page-description { opacity: .7; }
+.sifi-edition-heading { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; padding: 4px 0 14px; font-size: 12px; }
+.sifi-edition-heading[hidden], .sifi-edition-next[hidden] { display: none; }
+.sifi-edition-label { font-size: 14px; font-weight: 500; }
+.sifi-edition-detail { opacity: .7; }
+.sifi-edition-next { background: transparent; border: 1px solid currentColor; min-height: 36px; font-size: 12px; }
+
+[data-sifi-group-hidden] { display: none !important; }
+.sifi-subscription-toggle {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  box-sizing: border-box; width: calc(100% - 24px); margin: 0 12px 16px;
+  min-height: 44px; padding: 12px 16px; border: 0; border-radius: 22px;
+  background: rgba(128,128,128,.16); color: inherit;
+  font: 500 14px/1.4 Roboto, Arial, sans-serif; text-align: left;
+  touch-action: manipulation; cursor: pointer; overflow-anchor: none;
+}
+.sifi-subscription-toggle[hidden] { display: none; }
+.sifi-subscription-toggle::after {
+  content: ''; flex: 0 0 7px; height: 7px; border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor; transform: rotate(45deg);
+}
+.sifi-subscription-toggle[aria-expanded="true"]::after { transform: rotate(225deg); }
+.sifi-subscription-toggle:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+.sifi-subscription-toggle:active { background: rgba(128,128,128,.3); }

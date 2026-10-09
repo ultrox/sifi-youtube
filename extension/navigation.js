@@ -10,7 +10,13 @@
   const restored = performance.getEntriesByType('navigation')[0]?.type === 'back_forward';
   // A landing default, not a restriction on Home. Never re-arm within this
   // document after navigation, Back, a manual Home click, or a settings change.
-  let homeDefaultPending = location.pathname === '/' && !restored;
+  let explicitEdition = false;
+  try {
+    const requested = Number(sessionStorage.getItem('sifi.youtube.edition.keep-home'));
+    explicitEdition = requested > 0 && Date.now() - requested >= 0 && Date.now() - requested < 30000;
+    sessionStorage.removeItem('sifi.youtube.edition.keep-home');
+  } catch { /* Storage is optional for normal navigation defaults. */ }
+  let homeDefaultPending = location.pathname === '/' && !restored && !explicitEdition;
 
   function cancelRetry() {
     clearTimeout(timer);

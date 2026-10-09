@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "SIFI YouTube Focus",
-  "version": "0.3.6",
+  "version": "0.5.0",
   "description": "Lock Shorts swiping, start at Subscriptions, and open channels on Videos. Each feature is optional.",
   "permissions": [
     "storage"
@@ -24,9 +24,16 @@
       "js": [
         "settings-model.js",
         "pagination-core.js",
+        "editions-core.js",
+        "editions-store.js",
+        "editions.js",
+        "recommendations-core.js",
+        "recommendations-store.js",
+        "recommendations.js",
         "shorts-lock.js",
         "shorts-audio.js",
         "pagination-view.js",
+        "subscription-groups.js",
         "pagination.js",
         "navigation.js"
       ],

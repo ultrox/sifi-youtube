@@ -21,13 +21,26 @@
         <label class="setting"><span><strong>Start in Subscriptions</strong><small>On a fresh Home load. You can still tap Home to explore.</small></span><input type="checkbox" name="subscriptionsHome" role="switch" disabled></label>
         <label class="setting"><span><strong>Open channels on Videos</strong><small>Other channel tabs stay available.</small></span><input type="checkbox" name="channelVideos" role="switch" disabled></label>
       </fieldset>
+      <fieldset>
+        <legend>Editions</legend>
+        <p class="section-note">Morning 08:00 · Afternoon 13:00 · Evening 18:00, in your local time. Captured when you first open each feed.</p>
+        <label class="setting"><span><strong>Home editions</strong><small>Keep the same videos and Shorts until the next edition.</small></span><input type="checkbox" name="homeEditions" role="switch" disabled></label>
+        <label class="setting"><span><strong>Subscriptions editions</strong><small>Freeze the whole feed, including Shorts shelves.</small></span><input type="checkbox" name="subscriptionsEditions" role="switch" disabled></label>
+        <label class="setting"><span><strong>Group subscription videos</strong><small>One visible video per channel. Expand to see its other saved uploads. Shorts shelves stay separate. Reload to apply.</small></span><input type="checkbox" name="subscriptionsGrouping" role="switch" disabled></label>
+        <p class="section-note">Requires pagination. Edition changes apply after reload. Your current edition keeps its captured items; page-size and limit increases take full effect in the next edition.</p>
+      </fieldset>
+      <fieldset>
+        <legend>Saved suggestions</legend>
+        <label class="setting"><span><strong>Keep recommendations per video</strong><small>The same suggestions on every revisit and reload. Player and comments stay live. Requires recommendation pagination.</small></span><input type="checkbox" name="recommendationsCache" role="switch" disabled></label>
+        <div class="limit-row"><label for="suggestion-hours"><strong>Keep for</strong><small>Refresh on your next visit after this time, never while watching. Changes apply to newly saved sets; reload to apply the toggle.</small></label><div class="quantity"><input id="suggestion-hours" type="number" name="recommendationsCacheHours" min="1" max="168" step="1" inputmode="numeric" disabled><span>hours</span></div></div>
+      </fieldset>
       <fieldset class="pagination">
         <legend>Pagination</legend>
         <p class="section-note">Choose a page size for each feed, then set a shared stopping point.</p>
         <label class="setting compact"><span><strong>Home</strong></span><input type="checkbox" name="homePagination" role="switch" disabled></label>
         <div class="page-size"><label for="home-size">Home per page</label><div class="quantity"><input id="home-size" type="number" name="homePageSize" min="1" max="30" step="1" inputmode="numeric" disabled><span>items</span></div></div>
-        <label class="setting compact"><span><strong>Subscriptions</strong></span><input type="checkbox" name="subscriptionsPagination" role="switch" disabled></label>
-        <div class="page-size"><label for="subscriptions-size">Subscriptions per page</label><div class="quantity"><input id="subscriptions-size" type="number" name="subscriptionsPageSize" min="1" max="30" step="1" inputmode="numeric" disabled><span>items</span></div></div>
+        <label class="setting compact"><span><strong>Subscriptions</strong><small>One channel group or Shorts shelf per slot when grouping is on.</small></span><input type="checkbox" name="subscriptionsPagination" role="switch" disabled></label>
+        <div class="page-size"><label for="subscriptions-size">Subscription slots per page</label><div class="quantity"><input id="subscriptions-size" type="number" name="subscriptionsPageSize" min="1" max="30" step="1" inputmode="numeric" disabled><span>items</span></div></div>
         <label class="setting"><span><strong>Video recommendations</strong><small>Videos below the player, not comments.</small></span><input type="checkbox" name="recommendationsPagination" role="switch" disabled></label>
         <div class="page-size"><label for="recommendations-size">Video recommendations per page</label><div class="quantity"><input id="recommendations-size" type="number" name="recommendationsPageSize" min="1" max="30" step="1" inputmode="numeric" disabled><span>videos</span></div></div>
         <div class="limit-row"><label for="page-limit"><strong>Stop after</strong><small id="limit-help">For all paginated feeds · 1–30 pages</small></label><div class="quantity"><input id="page-limit" type="number" name="pageLimit" min="1" max="30" step="1" inputmode="numeric" aria-describedby="limit-help" disabled><span>pages</span></div></div>

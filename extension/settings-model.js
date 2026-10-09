@@ -1,9 +1,10 @@
 (() => {
   const defaults = Object.freeze({ shortsLock: true, subscriptionsHome: true, channelVideos: true,
-    homePagination: true, subscriptionsPagination: true, recommendationsPagination: true, pageDelayMs: 900, pageLimit: 6, homePageSize: 10, subscriptionsPageSize: 10, recommendationsPageSize: 5 });
+    recommendationsCache: true, recommendationsCacheHours: 24, subscriptionsGrouping: true, homeEditions: true, subscriptionsEditions: true, homePagination: true, subscriptionsPagination: true, recommendationsPagination: true, pageDelayMs: 900, pageLimit: 6, homePageSize: 10, subscriptionsPageSize: 10, recommendationsPageSize: 5 });
   function normalize(value) {
     return Object.fromEntries(Object.entries(defaults).map(([key, fallback]) =>
       [key, key === 'pageDelayMs' ? (Number.isInteger(value?.[key]) ? Math.min(10000, Math.max(500, value[key])) : 900)
+        : key === 'recommendationsCacheHours' ? (Number.isInteger(value?.[key]) ? Math.min(168, Math.max(1, value[key])) : 24)
         : typeof fallback === 'number' ? (Number.isInteger(value?.[key]) ? Math.min(30, Math.max(1, value[key])) : fallback)
         : typeof value?.[key] === 'boolean' ? value[key] : fallback]));
   }

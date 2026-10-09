@@ -11,6 +11,8 @@
   let mountAttempts = 0;
   const remembered = new Map();
 
+  function snapshot(kind) { return kind === 'recommendations' ? globalThis.SifiYouTubeRecommendations?.state() : globalThis.SifiYouTubeEditions?.state(kind); }
+
   function getScope() { return settings && core.scope(new URL(location.href), settings); }
   function visible(node) { return !!node && !node.closest('[hidden]') && node.getClientRects().length > 0; }
 
@@ -23,12 +25,12 @@
     const canonical = document.querySelector('link[rel="canonical"]')?.href;
     if (canonical && new URL(canonical, location.href).searchParams.get('v') !== new URL(location.href).searchParams.get('v')) return null;
     return [...document.querySelectorAll('ytm-item-section-renderer.scwnr-content > lazy-list')]
-      .find(list => list.querySelector(':scope > ytm-video-with-context-renderer, :scope > ytm-compact-video-renderer')) || null;
+      .find(list => list.parentElement?.data?.targetId === 'watch-next-feed' || list.querySelector(':scope > ytm-video-with-context-renderer, :scope > ytm-compact-video-renderer')) || null;
   }
 
   function remember(controller) {
     remembered.delete(controller.scope.key);
-    remembered.set(controller.scope.key, controller.departure || { page: controller.page, scroll: window.scrollY });
+    remembered.set(controller.scope.key, controller.departure || { page: controller.page, scroll: window.scrollY, expanded: [...controller.groups.expanded] });
     if (remembered.size > 12) remembered.delete(remembered.keys().next().value);
   }
 
@@ -49,7 +51,7 @@
     clearTimeout(mountTimer);
     if (!route || active || getScope()?.key !== route.key) return;
     const list = findList(route);
-    if (list && [...list.children].some(node => node.matches(cardSelector))) {
+    if (list && ([...list.children].some(node => node.matches(cardSelector)) || snapshot(route.kind))) {
       active = new Pager(list, route, remembered.get(route.key));
       return;
     }
@@ -62,6 +64,8 @@
       this.scope = scope;
       this.page = 1;
       this.cards = [];
+      this.entries = [];
+      this.groups = new SifiYouTubeSubscriptionGroups(saved?.expanded);
       this.waiting = null;
       this.error = '';
       this.destroyed = false;
@@ -71,7 +75,10 @@
       this.view = new SifiYouTubePaginationView(scope, {
         page: number => this.go(number),
         previous: () => this.go(this.page - 1),
-        next: () => this.go(this.error ? this.failedTarget || this.page : this.page + 1),
+        next: () => {
+          if (snapshot(this.scope.kind)?.error) { if (this.scope.kind === 'recommendations') location.reload(); else globalThis.SifiYouTubeEditions.openNext(this.scope.kind); }
+          else this.go(this.error ? this.failedTarget || this.page : this.page + 1);
+        },
       });
       this.header = this.view.header;
       this.footer = this.view.footer;
@@ -89,7 +96,7 @@
       this.initializing = true;
       this.refresh();
       this.initializing = false;
-      const target = Math.min(saved?.page || 1, core.limit(settings.pageLimit));
+      const target = Math.min(saved?.page || 1, this.limit);
       this.restoreScroll = saved?.scroll;
       this.go(target, false);
     }
@@ -109,19 +116,34 @@
         this.cancelLoad(); this.page = 1; this.restoreScroll = null; this.error = '';
       }
       this.cards = nextCards;
-      const cap = core.limit(settings.pageLimit);
+      const grouped = !!snapshot(this.scope.kind)?.grouped;
+      if (grouped) this.entries = this.groups.update(this.cards);
+      else {
+        this.groups.destroy();
+        this.entries = this.cards.map(card => ({cards:[card]}));
+      }
+      const cap = this.limit;
       this.page = Math.min(this.page, cap);
-      const state = core.view(this.cards.length, this.page, cap, this.hasMore(), this.size);
+      const state = core.view(this.entries.length, this.page, cap, this.hasMore(), this.size);
       this.page = state.page;
-      this.cards.forEach((card, index) => card.toggleAttribute('data-sifi-page-hidden', index < state.start || index >= state.end));
+      if (grouped) this.groups.show(state.start, state.end);
+      else this.cards.forEach((card, index) => card.toggleAttribute('data-sifi-page-hidden', index < state.start || index >= state.end));
       if (!this.header.isConnected) this.list.before(this.header);
       if (!this.footer.isConnected) this.list.after(this.footer);
       this.paint();
-      if (!this.initializing && (replaced || (!this.waiting && !this.error && this.page === 1 && this.cards.length < this.size && this.hasMore()))) this.go(1, false);
+      if (!this.initializing && (replaced || (!this.waiting && !this.error && this.page === 1 && (this.entries.length < this.size || this.needsHydration) && this.hasMore()))) this.go(1, false);
       else if (this.waiting) this.continueLoad();
     }
 
+    get needsHydration() { return this.scope.kind === 'recommendations' ? !!snapshot(this.scope.kind) && !!globalThis.SifiYouTubeRecommendations?.needsHydration() : !!globalThis.SifiYouTubeEditions?.needsHydration(this.scope.kind); }
+
     get size() { return core.pageSize(this.scope.kind, settings); }
+    get limit() {
+      const configured = core.limit(settings.pageLimit);
+      const edition = snapshot(this.scope.kind);
+      return edition && !edition.loading && !edition.error
+        ? Math.min(configured, Math.max(1, Math.ceil(edition.count / this.size))) : configured;
+    }
 
     continuations() { return [...this.list.children].filter(node => node.matches(continuationSelector)); }
     hasMore() { return this.continuations().length > 0; }
@@ -129,18 +151,19 @@
     paint() {
       this.view.render({
         page: this.page, size: this.size,
-        state: core.view(this.cards.length, this.page, settings.pageLimit, this.hasMore(), this.size),
-        hasMore: this.hasMore(), limit: core.limit(settings.pageLimit),
+        state: core.view(this.entries.length, this.page, this.limit, this.hasMore(), this.size),
+        hasMore: this.hasMore(), limit: this.limit,
         waiting: this.waiting, error: this.error,
+        edition: snapshot(this.scope.kind),
       });
     }
 
     go(requested, scroll = true) {
       if (this.destroyed || this.waiting) return;
-      const target = Math.max(1, Math.min(requested, core.limit(settings.pageLimit)));
+      const target = Math.max(1, Math.min(requested, this.limit));
       this.error = '';
       this.failedTarget = target;
-      const ready = this.cards.length >= target * this.size || !this.hasMore();
+      const ready = !this.needsHydration && (this.entries.length >= target * this.size || !this.hasMore());
       if (!scroll && ready) {
         this.commit(target, scroll);
         return;
@@ -151,7 +174,7 @@
         this.cancelLoad();
         this.error = 'Couldn’t load more videos. Your current page is still here.';
         this.paint();
-      }, 15000);
+      }, this.needsHydration ? 150000 : 15000);
       if (ready) this.finishLoad();
       else this.continueLoad();
     }
@@ -176,7 +199,7 @@
     continueLoad() {
       const pending = this.waiting;
       if (!pending || pending.ready) return;
-      if (this.cards.length >= pending.page * this.size) {
+      if (!this.needsHydration && this.entries.length >= pending.page * this.size) {
         this.finishLoad();
         return;
       }
@@ -218,7 +241,7 @@
     }
 
     commit(target, scroll) {
-      this.page = Math.min(target, Math.max(1, Math.ceil(this.cards.length / this.size)), core.limit(settings.pageLimit));
+      this.page = Math.min(target, Math.max(1, Math.ceil(this.entries.length / this.size)), this.limit);
       this.refresh();
       if (scroll) {
         let inset = 8;
@@ -251,6 +274,7 @@
       cancelAnimationFrame(this.frame);
       this.observer.disconnect(); this.parentObserver.disconnect();
       this.cards.forEach(card => card.removeAttribute('data-sifi-page-hidden'));
+      this.groups.destroy();
       this.header.remove(); this.footer.remove();
     }
   }
@@ -275,7 +299,7 @@
     }
     if (!active || !link) return;
     const scope = core.scope(new URL(link.href, location.href), settings);
-    if (scope?.key !== active.scope.key) active.departure = { page: active.page, scroll: window.scrollY };
+    if (scope?.key !== active.scope.key) active.departure = { page: active.page, scroll: window.scrollY, expanded: [...active.groups.expanded] };
   }, true);
 
   window.addEventListener('sifi-youtube-settings' , event => {
@@ -286,9 +310,15 @@
         active.cancelLoad(); active.page = 1; active.error = '';
         remembered.delete(active.scope.key);
       }
-      if (active.waiting?.page > core.limit(settings.pageLimit)) active.cancelLoad();
+      if (active.waiting?.page > active.limit) active.cancelLoad();
       active.refresh();
     } else routeChanged();
+  });
+  window.addEventListener('sifi-youtube-edition', () => {
+    if (!active) return;
+    const edition = snapshot(active.scope.kind);
+    if (edition?.error && active.waiting) { active.cancelLoad(); active.error = edition.error; }
+    active.schedule();
   });
   window.addEventListener('sifi-youtube-route', routeChanged);
   window.addEventListener('pageshow', routeChanged);

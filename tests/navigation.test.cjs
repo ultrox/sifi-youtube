@@ -4,7 +4,7 @@ const vm = require('node:vm');
 const fs = require('node:fs');
 const path = require('node:path');
 
-function browser(initialPath = '/', restored = false) {
+function browser(initialPath = '/', restored = false, editionAt = 0) {
   const listeners = new Map();
   const jobs = [];
   const timers = new Map();
@@ -35,6 +35,7 @@ function browser(initialPath = '/', restored = false) {
     querySelectorAll(selector) { return ready && selector === 'yt-tab-shape, tp-yt-paper-tab' ? [tab(`${renderedChannel}/videos`)] : []; },
   };
   const context = { URL, Element, Event: class {}, document, location, history,
+    sessionStorage: {getItem: () => editionAt ? String(editionAt) : null, removeItem: () => { editionAt = 0; }},
     performance: { getEntriesByType: () => [{ type: restored ? 'back_forward' : 'navigate' }] },
     window: { addEventListener: listen, dispatchEvent() {} },
     queueMicrotask: fn => jobs.push(fn),
@@ -117,4 +118,12 @@ test('missing tabs stop retries; disabled defaults and restored documents do not
   assert.equal(disabled.clicks.length, 0);
   const restored = browser('/', true); restored.settings();
   assert.equal(restored.clicks.length, 0);
+});
+
+
+test('an explicit Home edition reload bypasses the landing default once; stale markers do not', () => {
+  const fresh = browser('/', false, Date.now()); fresh.settings();
+  assert.deepEqual(fresh.clicks, []);
+  const stale = browser('/', false, Date.now() - 60000); stale.settings();
+  assert.deepEqual(stale.clicks, ['/feed/subscriptions']);
 });
